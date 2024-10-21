@@ -1,0 +1,60 @@
+# Load the necessary libraries for reading Excel files
+library(readxl)
+library(writexl)
+
+# Step 1: Read the matrices from the Excel file
+file_path <- "all_matrices.xlsx"
+iot_nw <- read_excel(file_path, sheet = "IOT_NW", col_names = FALSE)
+iot_ne <- read_excel(file_path, sheet = "IOT_NE", col_names = FALSE)
+iot_toscana <- read_excel(file_path, sheet = "IOT_Toscana", col_names = FALSE)
+iot_centro <- read_excel(file_path, sheet = "IOT_Centro", col_names = FALSE)
+iot_sud <- read_excel(file_path, sheet = "IOT_Sud", col_names = FALSE)
+iot_ext <- read_excel(file_path, sheet = "IOT_Ext", col_names = FALSE)
+
+# Step 2: Load the 43x19 concordance matrix
+concordance_matrix <- read_excel(file_path, sheet = "Concordance", col_names = FALSE)
+
+# Step 3: Normalize the concordance matrix rows (so that each row sums to 1)
+normalize_concordance_matrix <- function(concordance) {
+  row_sums <- rowSums(as.matrix(concordance))  # Calculate the row sums
+  normalized_concordance <- sweep(as.matrix(concordance), 1, row_sums, FUN = "/")  # Normalize each row
+  return(normalized_concordance)
+}
+
+# Normalize the concordance matrix
+concordance_matrix_normalized <- normalize_concordance_matrix(concordance_matrix)
+
+# Step 4: Function to transform the matrix using the normalized concordance matrix
+transform_matrix <- function(matrix_43, concordance) {
+  concordance_transpose <- t(as.matrix(concordance))  # Transpose the concordance matrix
+  return(concordance_transpose %*% as.matrix(matrix_43) %*% as.matrix(concordance))  # Apply transformation
+}
+
+# Step 5: Apply the transformation to all matrices using the normalized concordance matrix
+matrix_19_nw <- transform_matrix(iot_nw, concordance_matrix_normalized)
+matrix_19_ne <- transform_matrix(iot_ne, concordance_matrix_normalized)
+matrix_19_toscana <- transform_matrix(iot_toscana, concordance_matrix_normalized)
+matrix_19_centro <- transform_matrix(iot_centro, concordance_matrix_normalized)
+matrix_19_sud <- transform_matrix(iot_sud, concordance_matrix_normalized)
+matrix_19_ext <- transform_matrix(iot_ext, concordance_matrix_normalized)
+
+# Step 6: Export the transformed matrices to CSV files
+write.csv(matrix_19_nw, "matrix_19_nw.csv", row.names = FALSE)
+write.csv(matrix_19_ne, "matrix_19_ne.csv", row.names = FALSE)
+write.csv(matrix_19_toscana, "matrix_19_toscana.csv", row.names = FALSE)
+write.csv(matrix_19_centro, "matrix_19_centro.csv", row.names = FALSE)
+write.csv(matrix_19_sud, "matrix_19_sud.csv", row.names = FALSE)
+write.csv(matrix_19_ext, "matrix_19_ext.csv", row.names = FALSE)
+
+# Step 7: Optionally, export all transformed matrices to a single Excel file
+write_xlsx(list(
+  "IOT_NW" = as.data.frame(matrix_19_nw),
+  "IOT_NE" = as.data.frame(matrix_19_ne),
+  "IOT_Toscana" = as.data.frame(matrix_19_toscana),
+  "IOT_Centro" = as.data.frame(matrix_19_centro),
+  "IOT_Sud" = as.data.frame(matrix_19_sud),
+  "IOT_Ext" = as.data.frame(matrix_19_ext)
+), "transformed_matrices.xlsx")
+
+# Output a success message
+cat("Transformation of matrices completed and saved to CSV and Excel files.\n")
