@@ -1,8 +1,8 @@
-MatrixTransform43to19
+# MatrixTransform43to19
 
 This repository contains R scripts for transforming matrices with 43 rows into matrices with 19 rows using a normalized concordance matrix. The repository includes scripts for loading, normalizing, transforming, and exporting matrices from Excel files into CSV and Excel formats for further analysis.
 
-Features
+# Features
 
 Matrix Transformation: Transforms 43-row matrices into 19-row matrices using a 43x19 concordance matrix.
 Normalization: Ensures that the row sums of the concordance matrix equal 1 for accurate scaling.
@@ -59,4 +59,4 @@ Output
 Transformed matrices are saved as CSV files and optionally into a single Excel file (transformed_matrices.xlsx).
 License
 
-This project is licensed under the GNU General Public License v2.0.
+This project is licensed under the GNU General Public License v3.0.
